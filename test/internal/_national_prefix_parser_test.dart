@@ -1,6 +1,6 @@
 import 'package:phone_numbers_parser/phone_numbers_parser.dart';
-import 'package:phone_numbers_parser/src/parsers/_national_number_parser.dart';
 import 'package:phone_numbers_parser/src/metadata/metadata_finder.dart';
+import 'package:phone_numbers_parser/src/parsers/_national_number_parser.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -8,7 +8,7 @@ void main() {
     test('should remove nationalPrefix', () {
       final metadataFR = MetadataFinder.findMetadataForIsoCode(IsoCode.FR);
       final remove = NationalNumberParser.extractNationalPrefix;
-      expect(remove('0488991144', metadataFR), equals(('0', '488991144')));
+      expect(remove('0488991144', metadataFR), equals({'nationalPrefix': '0', 'nsn': '488991144'}));
     });
 
     test('should remove remove nationalPrefix and transform', () {

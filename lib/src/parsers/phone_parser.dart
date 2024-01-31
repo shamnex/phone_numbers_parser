@@ -45,12 +45,15 @@ abstract class PhoneParser {
         ? MetadataFinder.findMetadataForIsoCode(destinationCountry)
         : null;
 
-    final (exitCode, withoutExitCode) =
+    final Map<String, dynamic> map =
         InternationalPrefixParser.extractExitCode(
       phoneNumber,
       destinationCountryMetadata: destinationMetadata,
       callerCountryMetadata: callerMetadata,
     );
+
+    final exitCode = map['exitCode'];
+    final withoutExitCode = map['phoneNumberWithoutExitCode'];
 
     // if no destination metadata was provided we have to find it,
     destinationMetadata ??= _findDestinationMetadata(
@@ -59,6 +62,7 @@ abstract class PhoneParser {
       callerMetadata: callerMetadata,
     );
     var national = withoutExitCode;
+    
     // if there was an exit code then it is an international number followed by
     // a country code.
     // otherwise if the phone number starts with a country code, we check
@@ -69,10 +73,11 @@ abstract class PhoneParser {
       national = national.substring(countryCode.length);
     } else if (national.startsWith(countryCode)) {
       final withoutCountryCode = national.substring(countryCode.length);
-      final (_, newNational) = NationalNumberParser.extractNationalPrefix(
+      final map = NationalNumberParser.extractNationalPrefix(
         withoutCountryCode,
         destinationMetadata,
       );
+      final newNational = map['nsn']; 
       final isValid =
           Validator.validateWithPattern(destinationMetadata.isoCode, national);
       final isValidWithoutCountryCode = Validator.validateWithPattern(
@@ -87,10 +92,11 @@ abstract class PhoneParser {
     final containsCountryCode = national.length != withoutExitCode.length;
     // normally a phone number should not contain a national prefix after the country
     // code. However we let it slide to cover a wider range of incorrect input
-    var (_, nsn) = NationalNumberParser.extractNationalPrefix(
+    Map<String, dynamic> extractNationalPrefix = NationalNumberParser.extractNationalPrefix(
       national,
       destinationMetadata,
     );
+    String nsn = extractNationalPrefix['nsn'];
     // if the phone number contained a country code, it should in its international form
     // and we should not transform it
     if (!containsCountryCode) {
@@ -122,11 +128,11 @@ abstract class PhoneParser {
       return callerMetadata;
     }
     // if no caller was provided we need to make a best guess given the country code
-    final (countryCode, nsn) =
+    final extractCountryCode =
         CountryCodeParser.extractCountryCode(phoneWithoutExitCode);
     // multiple countries use the same country code
     final metadata =
-        MetadataFinder.findMetadataForCountryCode(countryCode, nsn);
+        MetadataFinder.findMetadataForCountryCode(extractCountryCode['countryCode'], extractCountryCode['nsn']);
 
     return metadata ??
         callerMetadata ??

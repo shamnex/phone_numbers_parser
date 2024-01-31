@@ -1,12 +1,13 @@
 import 'dart:math';
 
 import 'package:phone_numbers_parser/src/constants/constants.dart';
-import 'package:phone_numbers_parser/src/models/phone_number_exceptions.dart';
 import 'package:phone_numbers_parser/src/metadata/metadata_finder.dart';
+import 'package:phone_numbers_parser/src/models/phone_number_exceptions.dart';
 
 abstract class CountryCodeParser {
   /// tries to find a country calling code at the start of a phone number
-  static (String countryCode, String nsn) extractCountryCode(
+  static Map<String, dynamic> extractCountryCode(
+    // static (String countryCode, String nsn) extractCountryCode(
     String phoneNumber,
   ) {
     final maxCountryCodeLength = min(
@@ -23,7 +24,10 @@ abstract class CountryCodeParser {
         nsn,
       );
       if (countryMetadata != null) {
-        return (countryMetadata.countryCode, nsn);
+        return {
+          'countryCode': countryMetadata.countryCode,
+          'nsn': nsn,
+        };
       }
     }
     throw PhoneNumberException(
